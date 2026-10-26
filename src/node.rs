@@ -51,4 +51,8 @@ impl Node {
     pub fn properties(&self) -> &serde_json::Value {
         &self.properties
     }
+
+    pub fn path(&self, root: &PathBuf) -> PathBuf {
+        root.join(&self.type_).join(&self.id)
+    }
 }

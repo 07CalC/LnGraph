@@ -14,8 +14,11 @@ impl Graph {
                 std::fs::create_dir_all(path).expect("Failed to create directory");
             } else {
             }
+            return Graph {
+                root: Some(Self::absoulte_path(path).expect("Failed to get absolute path")),
+            };
         }
-        Graph { root }
+        Graph { root: None }
     }
 
     pub fn open(&mut self, root: PathBuf) -> Result<(), String> {
@@ -44,5 +47,25 @@ impl Graph {
         } else {
             Err("Graph is not open".to_string())
         }
+    }
+
+    pub fn create_edge(
+        &self,
+        type_: String,
+        properties: serde_json::Value,
+        from: Box<Node>,
+        to: Box<Node>,
+    ) -> Result<crate::edge::Edge, String> {
+        if let Some(ref root) = self.root {
+            let edge = crate::edge::Edge::new(type_.as_str(), properties, from, to, root)?;
+            Ok(edge)
+        } else {
+            Err("Graph is not open".to_string())
+        }
+    }
+
+    fn absoulte_path(path: &PathBuf) -> Result<PathBuf, String> {
+        path.canonicalize()
+            .map_err(|e| format!("Failed to get absolute path: {}", e))
     }
 }
